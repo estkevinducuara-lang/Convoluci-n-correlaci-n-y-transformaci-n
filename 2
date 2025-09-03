@@ -1,0 +1,79 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# ==============================
+# Datos del problema
+# ==============================
+Ts = 1.25e-3      # Periodo de muestreo en segundos (1.25 ms)
+f = 100           # Frecuencia en Hz
+n = np.arange(0, 9)   # n = 0, 1, ..., 8
+w = 2*np.pi*f*Ts  # Frecuencia angular discreta
+
+# Señales
+x1 = np.cos(w * n)   # x1[n] = cos(2π f n Ts)
+x2 = np.sin(w * n)   # x2[n] = sin(2π f n Ts)
+
+print("x1[n]:", np.round(x1, 6))
+print("x2[n]:", np.round(x2, 6))
+
+# ==============================
+# Correlación cruzada
+# ==============================
+N = len(n)
+lags = np.arange(-(N-1), N)  # de -(N-1) a (N-1)
+r12 = np.zeros(len(lags))
+
+for i, k in enumerate(lags):
+    suma = 0
+    for ni in range(N):
+        nk = ni + k
+        if 0 <= nk < N:
+            suma += x1[ni] * x2[nk]
+    r12[i] = suma
+
+# Normalización
+E1 = np.sum(x1**2)
+E2 = np.sum(x2**2)
+r12_norm = r12 / np.sqrt(E1 * E2)
+
+print("\nLags:", lags)
+print("Correlación r12[k]:", np.round(r12, 6))
+print("Correlación normalizada:", np.round(r12_norm, 6))
+
+# ==============================
+# Gráficas
+# ==============================
+
+# Señal x1[n]
+plt.figure()
+plt.stem(n, x1)
+plt.title("x1[n] = cos(π/4 n)")
+plt.xlabel("n")
+plt.ylabel("Amplitud")
+plt.grid()
+
+# Señal x2[n]
+plt.figure()
+plt.stem(n, x2)
+plt.title("x2[n] = sin(π/4 n)")
+plt.xlabel("n")
+plt.ylabel("Amplitud")
+plt.grid()
+
+# Correlación no normalizada
+plt.figure()
+plt.stem(lags, r12)
+plt.title("Correlación cruzada r12[k]")
+plt.xlabel("Retardo k (muestras)")
+plt.ylabel("r12[k]")
+plt.grid()
+
+# Correlación normalizada
+plt.figure()
+plt.stem(lags, r12_norm)
+plt.title("Correlación cruzada normalizada")
+plt.xlabel("Retardo k (muestras)")
+plt.ylabel("Coeficiente")
+plt.grid()
+
+plt.show()
